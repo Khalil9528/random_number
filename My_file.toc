@@ -27,4 +27,4 @@
 \contentsline {subsection}{Visualisation}{7}{}%
 \contentsline {subsection}{Commentaires}{8}{}%
 \contentsline {chapter}{Ouverture sur la Théorie de la Percolation}{9}{}%
-\contentsline {chapter}{Conclusion}{10}{}%
+\contentsline {chapter}{Références}{10}{}%

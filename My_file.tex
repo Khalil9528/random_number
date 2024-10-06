@@ -7,7 +7,8 @@
 \usepackage{listings} % pour le code source
 \usepackage{amsmath} % pour les équations mathématiques
 \usepackage{fancyhdr} % pour les en-têtes et pieds de page
-\usepackage{lipsum} % pour générer du texte fictif
+\usepackage{url} % pour les liens URL
+\usepackage{xcolor} % pour changer la couleur du texte
 
 \geometry{hmargin=2.5cm,vmargin=3cm} % marges
 
@@ -45,7 +46,7 @@
 
 \chapter*{Introduction} % Introduction sans numéro de chapitre
 \addcontentsline{toc}{chapter}{Introduction} % Ajoute l'introduction à la table des matières
-Ce rapport présente la génération de variates aléatoires en utilisant le générateur Mersenne Twister. Nous suivrons les étapes demandées dans le laboratoire, allant de la recherche sur le générateur à l'implémentation de différentes méthodes de génération, en passant par la visualisation des résultats obtenus.
+Ce rapport présente la génération de variates aléatoires en utilisant le générateur Mersenne Twister. Les différentes méthodes de génération, y compris les distributions uniformes, exponentielles et discrètes, ainsi que la méthode de Box-Muller pour les lois normales, sont explorées.
 
 \newpage
 \section*{Partie 1 : Implémentation du Mersenne Twister}
@@ -158,27 +159,28 @@ void simulate_discrete(int n) {
 
 \subsection*{Résultats}
 \addcontentsline{toc}{subsection}{Résultats} % Ajoute Résultats à la table des matières
-Voici les résultats pour un échantillon de 1 000 tirages :
+Les résultats de la simulation pour différents nombres d'échantillons sont :
 
 \begin{itemize}
-    \item Classe A: 34.20\%
-    \item Classe B: 45.50\%
-    \item Classe C: 20.30\%
+    \item 1 000 échantillons : Classe A: 34.20\%, Classe B: 45.50\%, Classe C: 20.30\%
+    \item 10 000 échantillons : Classe A: 35.47\%, Classe B: 44.45\%, Classe C: 20.08\%
+    \item 100 000 échantillons : Classe A: 34.93\%, Classe B: 45.04\%, Classe C: 20.03\%
+    \item 1 000 000 échantillons : Classe A: 35.03\%, Classe B: 44.96\%, Classe C: 20.01\%
 \end{itemize}
 
 \subsection*{Visualisation}
 \addcontentsline{toc}{subsection}{Visualisation} % Ajoute Visualisation à la table des matières
-Voici la répartition des classes sous forme d'un graphique à barres :
+L'histogramme ci-dessous illustre la répartition des classes :
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{3.png}
-    \caption{Simulation de la distribution discrète (Classes A, B, C)}
+    \caption{Distribution discrète des classes A, B et C}
 \end{figure}
 
 \subsection*{Commentaires}
 \addcontentsline{toc}{subsection}{Commentaires} % Ajoute Commentaires à la table des matières
-Les résultats de la simulation sont conformes aux proportions attendues, ce qui valide l'efficacité de l'implémentation.
+Les résultats sont conformes aux attentes, montrant que la simulation est correcte.
 
 \newpage
 \section*{Partie 4 : Reproduction de Distributions Continues}
@@ -247,8 +249,12 @@ Dans le cadre de ce laboratoire, il est intéressant de faire un lien entre les 
 L'utilisation de générateurs de haute qualité, comme le Mersenne Twister, est cruciale pour obtenir des simulations précises et fiables. En appliquant ces techniques à des modèles de percolation, nous pouvons explorer des comportements critiques dans des systèmes complexes, mettant en lumière l'importance de la génération de nombres aléatoires dans des contextes variés.
 
 \newpage
-\chapter*{Conclusion}
-\addcontentsline{toc}{chapter}{Conclusion} % Ajoute la conclusion à la table des matières
-Dans ce rapport, nous avons exploré plusieurs méthodes pour générer des nombres pseudo-aléatoires suivant différentes lois de probabilité (uniforme, exponentielle, discrète et normale). À l'aide du générateur Mersenne Twister, nous avons pu vérifier la qualité des nombres générés et visualiser les résultats sous forme de graphiques. Chaque méthode a montré sa capacité à générer des échantillons représentatifs des distributions théoriques, soulignant ainsi l'importance de choisir la bonne méthode de génération pour chaque application.
+\chapter*{Références}
+\addcontentsline{toc}{chapter}{Références} % Ajoute la section Références à la table des matières
+
+\begin{itemize}
+    \item [1] D. D. Hill, “Lab 2 : Generation of random variates,” \url{https://perso.isima.fr/dahill/}, p. 2.
+    \item [2] Code source disponible à l'adresse suivante : \url{https://github.com/Khalil9528/random_number.git}
+\end{itemize}
 
 \end{document}
