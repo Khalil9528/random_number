@@ -46,6 +46,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <time.h> // Ajouté pour l'initialisation du générateur aléatoire
 
 #define N 624
 #define M 397
@@ -60,21 +62,23 @@ static int left = 1;
 static int initf = 0;
 static unsigned long *next;
 
-/* initializes state[N] with a seed */
+/* Prototypes des fonctions supplémentaires */
+bool Verify_Point(double x_r, double y_r);
+double Approximation_Of_Pi(int nombre_of_iterations);
+
+/* initialise le générateur avec une graine */
 void init_genrand(unsigned long s) {
     int j;
     state[0] = s & 0xffffffffUL;
     for (j = 1; j < N; j++) {
         state[j] = (1812433253UL * (state[j-1] ^ (state[j-1] >> 30)) + j); 
-        state[j] &= 0xffffffffUL;  /* for >32 bit machines */
+        state[j] &= 0xffffffffUL;  /* pour les machines >32 bits */
     }
     left = 1; 
     initf = 1;
 }
 
-/* initialize by an array with array-length */
-/* init_key is the array for initializing keys */
-/* key_length is its length */
+/* initialise par un tableau avec une longueur donnée */
 void init_by_array(unsigned long init_key[], int key_length) {
     int i, j, k;
     init_genrand(19650218UL);
@@ -83,8 +87,8 @@ void init_by_array(unsigned long init_key[], int key_length) {
     k = (N > key_length ? N : key_length);
     for (; k; k--) {
         state[i] = (state[i] ^ ((state[i-1] ^ (state[i-1] >> 30)) * 1664525UL))
-          + init_key[j] + j; /* non linear */
-        state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
+          + init_key[j] + j; /* non linéaire */
+        state[i] &= 0xffffffffUL; /* pour WORDSIZE > 32 bits */
         i++; 
         j++;
         if (i >= N) { state[0] = state[N-1]; i = 1; }
@@ -92,12 +96,12 @@ void init_by_array(unsigned long init_key[], int key_length) {
     }
     for (k = N-1; k; k--) {
         state[i] = (state[i] ^ ((state[i-1] ^ (state[i-1] >> 30)) * 1566083941UL))
-          - i; /* non linear */
-        state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
+          - i; /* non linéaire */
+        state[i] &= 0xffffffffUL; /* pour WORDSIZE > 32 bits */
         i++;
         if (i >= N) { state[0] = state[N-1]; i = 1; }
     }
-    state[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */ 
+    state[0] = 0x80000000UL; /* MSB is 1; assure une initialisation non nulle */ 
     left = 1; 
     initf = 1;
 }
@@ -106,8 +110,8 @@ static void next_state(void) {
     unsigned long *p = state;
     int j;
 
-    /* if init_genrand() has not been called, */
-    /* a default initial seed is used         */
+    /* si init_genrand() n'a pas été appelé, */
+    /* une graine initiale par défaut est utilisée         */
     if (initf == 0) init_genrand(5489UL);
 
     left = N;
@@ -122,7 +126,7 @@ static void next_state(void) {
     *p = p[M - N] ^ TWIST(p[0], state[0]);
 }
 
-/* generates a random number on [0,0xffffffff]-interval */
+/* génère un nombre aléatoire dans l'intervalle [0,0xffffffff] */
 unsigned long genrand_int32(void) {
     unsigned long y;
 
@@ -138,7 +142,7 @@ unsigned long genrand_int32(void) {
     return y;
 }
 
-/* generates a random number on [0,0x7fffffff]-interval */
+/* génère un nombre aléatoire dans l'intervalle [0,0x7fffffff] */
 long genrand_int31(void) {
     unsigned long y;
 
@@ -154,7 +158,7 @@ long genrand_int31(void) {
     return (long)(y >> 1);
 }
 
-/* generates a random number on [0,1)-real-interval */
+/* génère un nombre aléatoire dans l'intervalle [0,1]-réel */
 double genrand_real1(void) {
     unsigned long y;
 
@@ -170,7 +174,7 @@ double genrand_real1(void) {
     return (double)y * (1.0 / 4294967295.0); 
 }
 
-/* generates a random number on [0,1)-real-interval */
+/* génère un nombre aléatoire dans l'intervalle [0,1)-réel */
 double genrand_real2(void) {
     unsigned long y;
 
@@ -186,7 +190,7 @@ double genrand_real2(void) {
     return (double)y * (1.0 / 4294967296.0); 
 }
 
-/* generates a random number on (0,1)-real-interval */
+/* génère un nombre aléatoire dans l'intervalle (0,1)-réel */
 double genrand_real3(void) {
     unsigned long y;
 
@@ -259,8 +263,29 @@ void box_muller(double *x1, double *x2) {
     *x2 = sqrt(-2.0 * log(Rn1)) * sin(2.0 * M_PI * Rn2);
 }
 
+/* Fonction pour vérifier si un point est dans le cercle unité */
+bool Verify_Point(double x_r, double y_r){
+    return (x_r * x_r + y_r * y_r <= 1.0);
+}
+
+/* Fonction pour approximer Pi en utilisant la méthode de Monte-Carlo */
+double Approximation_Of_Pi(int nombre_of_iterations){
+    int conter = 0;
+    for (int i = 0; i < nombre_of_iterations; i++) {
+        double x_r = genrand_real1();
+        double y_r = genrand_real1();
+        if(Verify_Point(x_r, y_r)){
+            conter++;
+        }    
+    }
+    double pi = 4.0 * ((double)conter / (double)nombre_of_iterations);
+    return pi;
+}
+
 int main(void) {
-    unsigned long init[4] = {0x123, 0x234, 0x345, 0x456}, length = 4;
+    // Initialisation du générateur de nombres aléatoires avec une graine personnalisée
+    unsigned long init[4] = {0x123, 0x234, 0x345, 0x456};
+    int length = 4;
     init_by_array(init, length);
 
     // Tests de la partie 2
@@ -295,7 +320,17 @@ int main(void) {
         box_muller(&x1, &x2);
         printf("x1 = %.2f, x2 = %.2f\n", x1, x2);
     }
-    
+
+    // Approximation de Pi
+    printf("\nApproximation de Pi par la méthode de Monte-Carlo :\n");
+    int iterations;
+    printf("Entrez le nombre d'itérations pour approximer Pi : ");
+    if (scanf("%d", &iterations) != 1 || iterations <= 0) {
+        printf("Nombre d'itérations invalide. Utilisation de 1000000 par défaut.\n");
+        iterations = 1000000;
+    }
+    double pi = Approximation_Of_Pi(iterations);
+    printf("Approximation de Pi avec %d itérations = %.6f\n", iterations, pi);
 
     return 0;
 }
