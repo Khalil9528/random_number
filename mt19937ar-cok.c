@@ -64,7 +64,11 @@ static unsigned long *next;
 
 /* Prototypes des fonctions supplémentaires */
 bool Verify_Point(double x_r, double y_r);
-double Approximation_Of_Pi(int nombre_of_iterations);
+double simPi(long long nbPoints);
+double mean_Pi(int n, long long nbPoints);
+double absolute_error(int n, long long nbPoints);
+void test_simPi();
+void test_mean_Pi();
 
 /* initialise le générateur avec une graine */
 void init_genrand(unsigned long s) {
@@ -206,7 +210,6 @@ double genrand_real3(void) {
     return ((double)y + 0.5) * (1.0 / 4294967296.0); 
 }
 
-
 double genrand_res53(void) { 
     unsigned long a = genrand_int32() >> 5, b = genrand_int32() >> 6; 
     return (a * 67108864.0 + b) * (1.0 / 9007199254740992.0); 
@@ -269,17 +272,72 @@ bool Verify_Point(double x_r, double y_r){
 }
 
 /* Fonction pour approximer Pi en utilisant la méthode de Monte-Carlo */
-double Approximation_Of_Pi(int nombre_of_iterations){
-    int conter = 0;
-    for (int i = 0; i < nombre_of_iterations; i++) {
+double simPi(long long nbPoints){
+    long long conter = 0;
+    for (long long i = 0; i < nbPoints; i++) {
         double x_r = genrand_real1();
         double y_r = genrand_real1();
         if(Verify_Point(x_r, y_r)){
             conter++;
         }    
     }
-    double pi = 4.0 * ((double)conter / (double)nombre_of_iterations);
+    double pi = 4.0 * ((double)conter / (double)nbPoints);
     return pi;
+}
+
+/* Fonction pour calculer la moyenne des estimations de Pi sur n réplications */
+double mean_Pi(int n, long long nbPoints){
+    double sum = 0.0;
+    for (int i = 0; i < n; i++) {
+        sum += simPi(nbPoints);
+    }
+    return sum / n;
+}
+
+/* Fonction pour calculer l'erreur absolue entre la moyenne estimée de Pi et la valeur réelle de Pi */
+double absolute_error(int n, long long nbPoints){
+    double mean = mean_Pi(n, nbPoints);
+    return fabs(mean - M_PI);
+}
+
+/* Estimation de Pi avec différents nombres de points */
+void test_simPi() {
+    long long points[] = {1000, 1000000, 1000000000};
+    int num_tests = sizeof(points) / sizeof(points[0]);
+
+    printf("\nEstimation de Pi avec différents nombres de points :\n");
+    for (int i = 0; i < num_tests; i++) {
+        long long nbPoints = points[i];
+        printf("Nombre de points : %lld\n", nbPoints);
+        double pi_estimated = simPi(nbPoints);
+        printf("Estimation de Pi : %.6f\n", pi_estimated);
+        printf("Erreur absolue : %.6f\n", fabs(pi_estimated - M_PI));
+        printf("Erreur relative : %.6f%%\n\n", fabs(pi_estimated - M_PI) / M_PI * 100.0);
+    }
+}
+
+/* Réalisation d'expériences indépendantes et calcul de la moyenne */
+void test_mean_Pi() {
+    int n_replications[] = {10, 20, 30, 40};
+    long long nbPoints[] = {1000, 1000000, 1000000000};
+    int num_repl = sizeof(n_replications) / sizeof(n_replications[0]);
+    int num_points = sizeof(nbPoints) / sizeof(nbPoints[0]);
+
+    printf("\nRéalisation d'expériences indépendantes et calcul de la moyenne :\n");
+    for (int i = 0; i < num_repl; i++) {
+        int n = n_replications[i];
+        for (int j = 0; j < num_points; j++) {
+            long long nb = nbPoints[j];
+            double mean = mean_Pi(n, nb);
+            double abs_error = fabs(mean - M_PI);
+            double rel_error = fabs(mean - M_PI) / M_PI * 100.0;
+
+            printf("Nombre de réplications : %d, Nombre de points par réplication : %lld\n", n, nb);
+            printf("Moyenne estimée de Pi : %.6f\n", mean);
+            printf("Erreur absolue : %.6f\n", abs_error);
+            printf("Erreur relative : %.6f%%\n\n", rel_error);
+        }
+    }
 }
 
 int main(void) {
@@ -321,16 +379,11 @@ int main(void) {
         printf("x1 = %.2f, x2 = %.2f\n", x1, x2);
     }
 
-    // Approximation de Pi
-    printf("\nApproximation de Pi par la méthode de Monte-Carlo :\n");
-    int iterations;
-    printf("Entrez le nombre d'itérations pour approximer Pi : ");
-    if (scanf("%d", &iterations) != 1 || iterations <= 0) {
-        printf("Nombre d'itérations invalide. Utilisation de 1000000 par défaut.\n");
-        iterations = 1000000;
-    }
-    double pi = Approximation_Of_Pi(iterations);
-    printf("Approximation de Pi avec %d itérations = %.6f\n", iterations, pi);
+    // Estimation de Pi avec différents nombres de points
+    test_simPi();
+
+    // Réalisation d'expériences indépendantes et calcul de la moyenne
+    test_mean_Pi();
 
     return 0;
 }
